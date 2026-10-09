@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: giftora
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    # Persistent disks require a paid instance type (not "free").
+    plan: starter
+    healthCheckPath: /api/v1/health
+    autoDeploy: true
+    # Persistent disk so the H2 file database survives deploys/restarts.
+    disk:
+      name: giftora-data
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: GIFTORA_DB_DIR
+        value: /data
+      - key: GIFTORA_SEED
+        value: "true"
+      - key: AI_CHATBOT_PROVIDER
+        value: mock
+      # Set this in the Render dashboard to enable the Gemini-backed chatbot
+      - key: GEMINI_API_KEY
+        sync: false

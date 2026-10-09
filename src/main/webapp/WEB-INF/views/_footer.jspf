@@ -1,0 +1,28 @@
+    </div>
+</main>
+<footer class="footer">
+    <div class="container">
+        <span>&copy; 2026 Giftora. All rights reserved.</span>
+        <span>Curated gifts &amp; everyday essentials.</span>
+    </div>
+</footer>
+
+<button class="chat-toggle" id="chatToggle" title="Shopping assistant" aria-label="Open shopping assistant">&#128172;</button>
+<div class="chat-panel" id="chatPanel" role="dialog" aria-label="Giftora shopping assistant">
+    <div class="chat-header">
+        <span>Giftora Assistant</span>
+        <button id="chatClose" aria-label="Close chat">&times;</button>
+    </div>
+    <div class="chat-messages" id="chatMessages">
+        <div class="chat-msg bot">Hi! I'm the Giftora assistant. Ask me for gift ideas, e.g. "gift under 1000" or "running shoes".</div>
+    </div>
+    <form class="chat-input" id="chatForm">
+        <input id="chatInput" type="text" maxlength="500" placeholder="Ask about products..." autocomplete="off" />
+        <button type="submit" aria-label="Send">&#10148;</button>
+    </form>
+</div>
+
+<script src="${ctx}/js/app.js"></script>
+<script src="${ctx}/js/chatbot.js"></script>
+</body>
+</html>
