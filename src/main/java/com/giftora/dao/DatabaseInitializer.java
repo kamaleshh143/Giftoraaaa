@@ -35,6 +35,7 @@ public final class DatabaseInitializer {
                 seedUsers(connection);
                 seedProducts(connection);
             }
+            migrateProductImages(connection);
         } catch (SQLException ex) {
             throw new IllegalStateException("Database initialization failed", ex);
         }
@@ -189,7 +190,55 @@ public final class DatabaseInitializer {
             this.price = new BigDecimal(price);
             this.category = category;
             this.stock = stock;
-            this.imageUrl = "https://picsum.photos/seed/giftora" + id + "/400/400";
+            this.imageUrl = productImagePath(id);
+        }
+    }
+
+    /**
+     * Returns the bundled, product-specific photo for a demo product id, or the
+     * generic placeholder for anything outside the 1..50 demo range.
+     */
+    static String productImagePath(long id) {
+        if (id >= 1 && id <= 50) {
+            return "/img/products/photo/p" + String.format("%02d", id) + ".jpg";
+        }
+        return "/img/placeholder.svg";
+    }
+
+    /**
+     * Rewrites legacy product image URLs. Older builds seeded every product with a
+     * random {@code picsum.photos} photo (never matching the product name) or a
+     * placeholder SVG illustration. This idempotently repoints those rows, and any
+     * blank image, at the bundled local photographs without touching seller-supplied
+     * URLs.
+     */
+    private static void migrateProductImages(Connection connection) throws SQLException {
+        List<Long> toFix = new ArrayList<>();
+        String select = "SELECT id, image_url FROM products";
+        try (PreparedStatement ps = connection.prepareStatement(select);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                String url = rs.getString("image_url");
+                boolean legacyPicsum = url == null || url.isBlank() || url.contains("picsum.photos");
+                boolean legacyIllustration = url != null && (url.equals("/img/placeholder.svg")
+                        || (url.startsWith("/img/products/p") && url.endsWith(".svg")));
+                if (legacyPicsum || legacyIllustration) {
+                    toFix.add(rs.getLong("id"));
+                }
+            }
+        }
+        if (toFix.isEmpty()) {
+            return;
+        }
+        String update = "UPDATE products SET image_url = ? WHERE id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(update)) {
+            for (Long id : toFix) {
+                ps.setString(1, productImagePath(id));
+                ps.setLong(2, id);
+                ps.addBatch();
+            }
+            int[] updated = ps.executeBatch();
+            log.info("Repaired {} legacy product image path(s) to bundled assets", updated.length);
         }
     }
 

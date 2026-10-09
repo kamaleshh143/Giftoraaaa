@@ -6,7 +6,7 @@
 <%@ include file="_header.jspf" %>
 
 <div class="card mb-3" style="flex-direction:row;flex-wrap:wrap">
-    <img src="<c:out value='${product.imageUrl}'/>" alt="<c:out value='${product.name}'/>" style="width:100%;max-width:420px;height:auto;object-fit:cover" />
+    <img class="product-hero" src="<c:out value='${product.imageUrl}'/>" alt="<c:out value='${product.name}'/>" />
     <div class="card-body" style="flex:1;min-width:280px;padding:1.5rem">
         <span class="card-category"><c:out value="${product.category}" /></span>
         <h1 class="page-title">${product.name}</h1>

@@ -12,10 +12,10 @@
         <div class="container nav">
             <div class="logo">Giftora</div>
             <nav class="nav-links">
-                <a href="products.jsp">Products</a>
-                <a href="login.jsp">Login</a>
-                <a href="register.jsp">Register</a>
-                <a href="cart.jsp">Cart</a>
+                <a href="${pageContext.request.contextPath}/products">Products</a>
+                <a href="${pageContext.request.contextPath}/login">Login</a>
+                <a href="${pageContext.request.contextPath}/register">Register</a>
+                <a href="${pageContext.request.contextPath}/cart">Cart</a>
             </nav>
         </div>
     </header>
@@ -24,7 +24,7 @@
             <section class="hero">
                 <h1>Welcome to Giftora</h1>
                 <p>Find the perfect gifts for every occasion</p>
-                <a href="products.jsp" class="btn btn-primary">Shop Now</a>
+                <a href="${pageContext.request.contextPath}/products" class="btn btn-primary">Shop Now</a>
             </section>
         </div>
     </main>

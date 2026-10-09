@@ -2,7 +2,11 @@ target/
 classes/
 .idea/
 *.iml
-.vscode/
+*.class
+.vscode/*
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
 .settings/
 .classpath
 .project
@@ -12,3 +16,5 @@ data/
 *.mv.db
 .env
 .DS_Store
+tomcat.*/
+classpath.txt

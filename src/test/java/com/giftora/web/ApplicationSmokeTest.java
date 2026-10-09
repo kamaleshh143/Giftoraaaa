@@ -22,6 +22,7 @@ import java.time.Duration;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -108,6 +109,41 @@ class ApplicationSmokeTest {
         HttpResponse<String> response = get("/product?id=1");
         assertEquals(200, response.statusCode());
         assertTrue(response.body().contains("Aurora X5 Smartphone"));
+    }
+
+    @Test
+    void productImagesAreBundledAndLoad() throws Exception {
+        HttpResponse<String> listing = get("/products");
+        assertEquals(200, listing.statusCode());
+        assertTrue(listing.body().contains("/img/products/p"),
+                "Listing should reference the bundled product images");
+        assertFalse(listing.body().contains("picsum.photos"),
+                "Listing must not use random remote images");
+
+        HttpResponse<String> details = get("/product?id=1");
+        assertEquals(200, details.statusCode());
+        assertTrue(details.body().contains("/img/products/photo/p01.jpg"),
+                "Product 1 should use its own bundled photo");
+
+        HttpResponse<String> image = get("/img/products/photo/p01.jpg");
+        assertEquals(200, image.statusCode());
+        assertTrue(image.headers().firstValue("Content-Type").orElse("").contains("image/jpeg"),
+                "Product image should be served as a JPEG: "
+                        + image.headers().firstValue("Content-Type").orElse(""));
+        assertEquals(200, get("/img/placeholder.svg").statusCode());
+    }
+
+    @Test
+    void cartShowsTheSameProductImageAsTheListing() throws Exception {
+        String cookie = login("buyer@giftora.example", "Buyer@12345");
+        HttpResponse<String> productPage = getWithCookie("/product?id=1", cookie);
+        String csrf = extract(productPage.body(), "name=\"csrfToken\" value=\"([^\"]*)\"");
+        postWithCookie("/cart", "action=add&productId=1&quantity=1&csrfToken=" + enc(csrf), cookie);
+
+        HttpResponse<String> cart = getWithCookie("/cart", cookie);
+        assertEquals(200, cart.statusCode());
+        assertTrue(cart.body().contains("/img/products/photo/p01.jpg"),
+                "Cart should show the same image as the listing and details pages");
     }
 
     @Test
